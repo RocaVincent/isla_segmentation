@@ -1,0 +1,1 @@
+required columns : dwi_path_shape1, adc_path_shape1, dwi_path_shape2, adc_path_shape2, reference_path, padcrop_r1, padcrop_l1, padcrop_p1, padcrop_a1, padcrop_i1, padcrop_s1, padcrop_r2, padcrop_l2, padcrop_p2, padcrop_a2, padcrop_i2, padcrop_s2, output_path'
