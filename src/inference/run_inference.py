@@ -1,14 +1,13 @@
 import tensorflow as tf
 
 from ..model_architectures.serialize_unet import model_from_config
-from ..util import ModelInput, ModelConfig
 from .predict import MultiPredictor_flipping
 
 
-    
-
 def segment_and_save(
-    model_inputs: list[ModelInput],
+    dwi_paths: list[str],
+    adc_paths: list[str],
+    brainMask_paths: list[str],
     output_paths: list[str],
     config_paths: list[str],
     weights_paths: list[str],
@@ -31,6 +30,11 @@ def segment_and_save(
     predictor = MultiPredictor_flipping([m for m in models])
     
     print('Running inference...')
-    for i,(model_input,output_path) in enumerate(zip(model_inputs,output_paths), start=1):
-        print(f"Running inference {i}/{len(model_inputs)}", end='\r')
-        predictor.predict(**model_input, output_path=output_path)
+    for i,(dwi_path, adc_path, brainMask_path, output_path) in enumerate(zip(dwi_paths,adc_paths,brainMask_paths,output_paths), start=1):
+        print(f"Running inference {i}/{len(dwi_paths)}", end='\r')
+        predictor.predict(
+            dwi_path=dwi_path,
+            adc_path=adc_path,
+            brainMask_path=brainMask_path,
+            output_path=output_path
+        )

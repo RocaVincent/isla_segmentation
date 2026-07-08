@@ -1,1 +1,0 @@
-N_CHANNELS = 2

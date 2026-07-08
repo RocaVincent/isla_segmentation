@@ -1,8 +1,7 @@
 import json
 from tensorflow.keras.models import Model
 
-from .unet import UNet
-from ..util import InputShape, UNetType
+from .unet import InputShape, UNetType, UNet
 
 def save_model_config(
     model: Model,

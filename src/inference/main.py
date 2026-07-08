@@ -7,7 +7,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--cases-csv', type=str, required=True,
-        help='CSV listing the preprocessed MR images, the reference paths, the padding/cropping values, and the output paths. See README for exact required columns.'
+        help="CSV listing the preprocessed MR images (reoriented, skull-stripped and bias-field corrected for DWI). Expected columns are 'dwi','adc','brain_mask','output_path'."
     )
     parser.add_argument(
         '--configs-weights-csv' , type=str, required=True,
@@ -19,12 +19,9 @@ def main():
     args = parser.parse_args()
     
     df = pd.read_csv(args.cases_csv)
-    model_inputs = []
-    for _,row in df.iterrows():
-        d = {v:row[v] for v in ('dwi_path_shape1','adc_path_shape1','dwi_path_shape2','adc_path_shape2','reference_path')}
-        d['padcrops1'] = {s:row[f'padcrop_{s}1'] for s in ('r','l','p','a','i','s')}
-        d['padcrops2'] = {s:row[f'padcrop_{s}2'] for s in ('r','l','p','a','i','s')}
-        model_inputs.append(d)
+    dwi_paths = df.dwi.tolist()
+    adc_paths = df.adc.tolist()
+    brainMask_paths = df.brain_mask.tolist()
     output_paths = df.output_path.tolist()
         
     df = pd.read_csv(args.configs_weights_csv)
@@ -32,7 +29,9 @@ def main():
     weights_paths = df.weights_path.tolist()
     
     segment_and_save(
-        model_inputs = model_inputs,
+        dwi_paths=dwi_paths,
+        adc_paths=adc_paths,
+        brainMask_paths=brainMask_paths,
         output_paths = output_paths,
         config_paths = config_paths,
         weights_paths = weights_paths,

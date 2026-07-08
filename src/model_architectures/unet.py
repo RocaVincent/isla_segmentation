@@ -3,11 +3,21 @@ from tensorflow.keras import layers
 import tensorflow as tf
 import numpy as np
 from functools import partial
+from enum import Enum
 
 from .attention import SE_block, Attention_block
-from ..constants import N_CHANNELS
-from ..util import InputShape, UNetType
-
+    
+class UNetType(Enum):
+    StdUNet = 'StdUNet'
+    ResUNet = 'ResUNet'
+    
+class InputShape(Enum):
+    SHAPE1 = (160,192,80)
+    SHAPE2 = (256,256,48)
+    
+class InputResol(Enum):
+    RESOL1 = (1.0,1.0,2.0)
+    RESOL2 = (0.8,0.8,3.0)
 
 def StdUNet_block(n_filters:int, kernel_size:tuple[int,int,int], strides1:tuple[int,int,int], dropout:bool):
     layers_ = [
@@ -62,7 +72,7 @@ def UNet(
     deep_supervision:bool,
     dropout_deepLayers:bool,
 ):   
-    inputs = layers.Input(shape=list(input_shape.value)+[N_CHANNELS])
+    inputs = layers.Input(shape=list(input_shape.value)+[2])
     
     n_filters = 32,64,128,256,320,320
     if input_shape==InputShape.SHAPE1:
