@@ -12,7 +12,7 @@ conda activate isla
 
 ## TensorFlow installation
 
-Then install TensorFlow:
+Then install TensorFlow 2.15.0 with GPU support (recommended for inference and mandatory for training):
 
 ```shell
 pip install tensorflow==2.15.0 --no-deps
