@@ -23,7 +23,7 @@ class SinglePredictor_flipping:
         pred = (preds[0]+pred2)/2
         return pred[:,:,:,0]
     
-    
+TARGET_ORNT = nib.orientations.axcodes2ornt(('L','A','S'))
 class MultiPredictor_flipping:
     
     def __init__(
@@ -41,6 +41,14 @@ class MultiPredictor_flipping:
         dwi = ref.get_fdata()
         adc = nib.load(adc_path).get_fdata()
         brain_mask = nib.load(brainMask_path).get_fdata()
+        orig_ornt = nib.orientations.io_orientation(ref.affine)
+        if orig_ornt!=TARGET_ORNT:
+            fwd_reorient = nib.orientations.ornt_transform(orig_ornt,TARGET_ORNT)
+            bwd_reorient = nib.orientations.ornt_transform(TARGET_ORNT,orig_ornt)
+            dwi = nib.orientations.apply_orientation(dwi,fwd_reorient)
+            adc = nib.orientations.apply_orientation(adc,fwd_reorient)
+            brain_mask = nib.orientations.apply_orientation(brain_mask,fwd_reorient)
+        
         input_resol = np.array(ref.header.get_zooms())
         if self.shape1:
             factors = input_resol / InputResol.RESOL1.value
@@ -80,5 +88,7 @@ class MultiPredictor_flipping:
             pred = ndimage.zoom(pred, inverse_zoom, order=1, prefilter=False)
             sum_preds += pred
         final_pred = np.round(sum_preds / len(self.predictors)).astype('int')
+        if orig_ornt!=TARGET_ORNT:
+            final_pred = nib.orientations.apply_orientation(final_pred, bwd_reorient)
         final_pred = nib.Nifti1Image(final_pred, affine=ref.affine, header=ref.header)
         nib.save(final_pred, output_path)

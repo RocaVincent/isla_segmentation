@@ -3,6 +3,7 @@ import numpy as np
 from scipy import ndimage
 import tempfile
 import subprocess
+import os
 
 from .model_architectures.unet import InputShape
 
@@ -122,7 +123,7 @@ def resample_padcrop_normalize(
     return dwi,adc,padcrops
     
     
-def reorient_skullstrip_n4(
+def skullstrip_n4(
     dwi_path:str,
     adc_path:str,
     out_dwi:str,
@@ -130,11 +131,9 @@ def reorient_skullstrip_n4(
     out_brainMask:str
 ) -> None:
     with tempfile.TemporaryDirectory() as tmp:
-        dwi_las = f"{tmp}/dwi_las.nii.gz"
-        adc_las = f"{tmp}/adc_las.nii.gz"
-        subprocess.run(['mri_convert',dwi_path,dwi_las,'--out-orientation','LAS'], check=True)
-        subprocess.run(['mri_convert',adc_path,adc_las,'--out-orientation','LAS'], check=True)
         dwi_brain = f"{tmp}/dwi_brain.nii.gz"
-        subprocess.run(['mri_synthstrip','-i',dwi_las,'-o',dwi_brain,'-m',out_brainMask], check=True)
-        subprocess.run(['mri_mask',adc_las,out_brainMask,out_adc], check=True)
+        env = os.environ.copy()
+        env["OMP_NUM_THREADS"] = "1"
+        subprocess.run(["mri_synthstrip", "-i", dwi_path, "-o", dwi_brain, "-m", out_brainMask], check=True, env=env, capture_output=True)
+        subprocess.run(['mri_mask',adc_path,out_brainMask,out_adc], check=True, capture_output=True)
         subprocess.run(['N4BiasFieldCorrection','-d','3','-i',dwi_brain,'-x',out_brainMask,'-o',out_dwi], check=True)
