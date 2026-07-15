@@ -17,10 +17,6 @@ def main():
         '--configs-weights-csv' , type=str, required=True,
         help='CSV listing the configuration and weights paths of each model. Two columns: config_path, weights_path.'
     )
-    # parser.add_argument(
-    #     '--nprocs', type=int, default=round(os.cpu_count() * 0.75),
-    #     help='Number of processes for preprocessing and post-processing.'
-    # )
     parser.add_argument(
         '--no-gpu', action='store_true', help='Forces CPU inference even if GPU is available',
     )
@@ -42,7 +38,6 @@ def main():
         config_paths=config_paths,
         weights_paths=weights_paths,
         use_gpu = not args.no_gpu,
-        #nprocs=args.nprocs
     )
     
 if __name__ == '__main__': main()

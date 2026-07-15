@@ -141,29 +141,17 @@ class StripModel(nn.Module):
     
 class CustomSynthstrip:
     
-    def __init__(self, gpu:bool):
-        # necessary for speed gains (I think)
+    def __init__(self):
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = True
-        
-        if gpu:
-            if not torch.cuda.is_available(): print('GPU asked for SynthStrip but CUDA is not available')
-            self.device = torch.device('cuda')
-            device_name = 'GPU'
-        else:
-            self.device = torch.device('cpu')
-            device_name = 'CPU'
-        print(f'Configuring model on the {device_name}')
-        
+        self.device = torch.device('cpu')
         with torch.no_grad():
             self.model = StripModel()
             self.model.to(self.device)
-            self.model.eval()
-            
+            self.model.eval()   
         modelfile = '/home/vincent/Downloads/synthstrip.1.pt'
         checkpoint = torch.load(modelfile, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
-        
         self.border = 1
 
     def skullstrip(

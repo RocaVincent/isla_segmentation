@@ -1,11 +1,12 @@
 from typing import TypedDict
 import numpy as np
 from scipy import ndimage
+import nibabel as nib
 import tempfile
 import subprocess
 import os
 
-from .model_architectures.unet import InputShape
+from ..model_architectures.unet import InputShape
 
 class SideIntegers3D(TypedDict):
     r:int
@@ -121,19 +122,3 @@ def resample_padcrop_normalize(
     np.clip(adc, a_min=-5, a_max=5, out=adc)
     
     return dwi,adc,padcrops
-    
-    
-def skullstrip_n4(
-    dwi_path:str,
-    adc_path:str,
-    out_dwi:str,
-    out_adc:str,
-    out_brainMask:str
-) -> None:
-    with tempfile.TemporaryDirectory() as tmp:
-        dwi_brain = f"{tmp}/dwi_brain.nii.gz"
-        env = os.environ.copy()
-        env["OMP_NUM_THREADS"] = "1"
-        subprocess.run(["mri_synthstrip", "-i", dwi_path, "-o", dwi_brain, "-m", out_brainMask], check=True, env=env, capture_output=True)
-        subprocess.run(['mri_mask',adc_path,out_brainMask,out_adc], check=True, capture_output=True)
-        subprocess.run(['N4BiasFieldCorrection','-d','3','-i',dwi_brain,'-x',out_brainMask,'-o',out_dwi], check=True)
