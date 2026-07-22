@@ -2,9 +2,6 @@ from typing import TypedDict
 import numpy as np
 from scipy import ndimage
 import nibabel as nib
-import tempfile
-import subprocess
-import os
 
 from ..model_architectures.unet import InputShape
 

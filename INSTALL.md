@@ -57,3 +57,10 @@ pip install \
   antspyx==0.6.3 \
   surfa==0.6.3
 ```
+
+
+## Required for training only
+
+```shell
+pip install elasticdeform==0.5.1
+```

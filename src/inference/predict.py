@@ -3,6 +3,7 @@ import nibabel as nib
 from scipy import ndimage
 import numpy as np
 import ants
+from collections.abc import Sequence
 
 from ..model_architectures.unet import InputShape, InputResol
 from ..preproc.synthstrip import CustomSynthstrip
@@ -31,8 +32,7 @@ class MultiPredictor_flipping:
     
     def __init__(
         self,
-        models: list[tf.keras.Model],
-        gpu_synthstrip:bool
+        models: Sequence[tf.keras.Model]
     ):
         self.predictors = [
             SinglePredictor_flipping(model=model) for model in models

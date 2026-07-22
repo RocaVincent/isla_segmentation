@@ -6,7 +6,8 @@ from functools import partial
 from enum import Enum
 
 from .attention import SE_block, Attention_block
-    
+
+
 class UNetType(Enum):
     StdUNet = 'StdUNet'
     ResUNet = 'ResUNet'
@@ -71,7 +72,7 @@ def UNet(
     unet_type: UNetType,
     deep_supervision:bool,
     dropout_deepLayers:bool,
-):   
+) -> Model:   
     inputs = layers.Input(shape=list(input_shape.value)+[2])
     
     n_filters = 32,64,128,256,320,320
