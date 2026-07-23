@@ -11,11 +11,11 @@ from ..model_architectures.unet import UNet, InputShape, UNetType
 from ..model_architectures.serialize_unet import save_model_config
 from .input_pipeline.tf_dataset import training_dataset_supervised
 from .loss_functions import sum_dice_bce, asym_unified_focal_loss
-from .trainer.fullySupervisedTrainer import FullySupervisedTrainer
+from .trainers.fullySupervisedTrainer import FullySupervisedTrainer
 
 IMAGE_SHAPE = json.loads(os.environ['IMAGE_SHAPE'])
 
-def train_supervised(
+def train_fullySupervised(
     tfrecord_paths: Sequence[str],
     unet_type: Literal['StdUNet','ResUNet'],
     loss_str: Literal['DiceBCE','UFL'],
@@ -101,7 +101,7 @@ def train_supervised(
                 print(f"End step {step+1}/{steps_per_epoch}, loss = {losses_epoch[step]:.4f}", end='\r')
         losses_train[epoch] = losses_epoch.mean()
         if verbose>=1:
-            logging.info(f"End epoch {epoch+1}/{n_epochs} -> training loss = {losses_train[epoch]:.5f}")
+            logging.info(f"End epoch {epoch+1}/{n_epochs} -> training loss = {losses_train[epoch]:.4f}")
 
     ### SAVING and final prompt ###
     save_model_config(model, f"{output_dir}/config.json")
@@ -113,4 +113,4 @@ def train_supervised(
         f.write(json.dumps(d, indent=4))
     if verbose>=1:
         duration = time()-t_start
-        logging.info(f"End of training (execution time : {timedelta(seconds=int(duration))}), model weights and training losses are saved in {outout_dir}")
+        logging.info(f"End of training (execution time : {timedelta(seconds=int(duration))}), model weights and training losses are saved in {output_dir}")

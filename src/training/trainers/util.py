@@ -1,5 +1,8 @@
 import tensorflow as tf
 
+import os, json
+IMAGE_SHAPE = json.loads(os.environ['IMAGE_SHAPE'])
+
 @tf.function(input_signature=(
     tf.TensorSpec(shape=[None]+IMAGE_SHAPE+[1], dtype='float32'),
     tf.TensorSpec(shape=[None], dtype='int32'),

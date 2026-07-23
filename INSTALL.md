@@ -62,5 +62,7 @@ pip install \
 ## Required for training only
 
 ```shell
-pip install elasticdeform==0.5.1
+pip install \
+    elasticdeform==0.5.1 \
+    scikit-image==0.24.0
 ```

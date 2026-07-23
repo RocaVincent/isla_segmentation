@@ -1,30 +1,14 @@
 import tensorflow as tf
 
-import json,os
-IMAGE_SHAPE = json.loads(os.environ['IMAGE_SHAPE'])
-
-
-@tf.function(input_signature=(
-    tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-    tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-))
+SMOOTH_DICE = 1.0
 def dice_loss(y_true, y_pred):
-    SMOOTH = 1.0
-    num = 2*tf.math.reduce_sum(y_true*y_pred, axis=(1,2,3,4)) + SMOOTH
-    den = tf.math.reduce_sum(y_true+y_pred, axis=(1,2,3,4)) + SMOOTH
+    num = 2*tf.math.reduce_sum(y_true*y_pred, axis=(1,2,3,4)) + SMOOTH_DICE
+    den = tf.math.reduce_sum(y_true+y_pred, axis=(1,2,3,4)) + SMOOTH_DICE
     return tf.math.reduce_mean(-num/den)
 
-@tf.function(input_signature=(
-    tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-    tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-))
 def binary_crossentropy(y_true, y_pred):
     return tf.keras.losses.binary_crossentropy(y_true, y_pred, axis=(0,1,2,3,4), from_logits=False)
 
-@tf.function(input_signature=(
-    tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-    tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-))
 def sum_dice_bce(y_true, y_pred):
     return dice_loss(y_true,y_pred) + binary_crossentropy(y_true, y_pred)
 
@@ -88,10 +72,6 @@ def asym_unified_focal_loss(weight=0.5, delta=0.6, gamma=0.5):
     fl_fn = asymmetric_focal_loss(delta=delta, gamma=gamma)
     
     EPS_UFL = 1e-7
-    @tf.function(input_signature=(
-        tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-        tf.TensorSpec(shape=IMAGE_SHAPE+[1], dtype='float32'),
-    ))
     def loss_function(y_true,y_pred):
         y_pred = tf.clip_by_value(y_pred, EPS_UFL, 1-EPS_UFL)
         asymmetric_ftl = ftl_fn(y_true,y_pred)
@@ -99,3 +79,8 @@ def asym_unified_focal_loss(weight=0.5, delta=0.6, gamma=0.5):
         return weight * asymmetric_ftl + (1-weight) * asymmetric_fl
 
     return loss_function
+
+
+def mse(preds1, preds2):
+    squared_diff = tf.math.square(preds1-preds2)
+    return tf.math.reduce_mean(squared_diff)

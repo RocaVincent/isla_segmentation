@@ -51,7 +51,7 @@ def scale_tensor(mris, factor, order):
 
 
 @tf.function(input_signature=(
-    tf.TensorSpec(shape=IMAGE_SHAPE+[N_CHANNELS], dtype='float32'),
+    tf.TensorSpec(shape=IMAGE_SHAPE+[2], dtype='float32'),
     tf.TensorSpec(shape=(IMAGE_SHAPE+[1]), dtype='float32'),
 ))
 def add_noise(mris, noise):
@@ -251,7 +251,7 @@ def augmentation_fns(flip: bool, rotation: bool, scaling: bool, elastic: bool, s
             mris = add_noise(mris, noise)
         if gaussBlur and tf.random.uniform(shape=(), minval=0, maxval=1, dtype='float32') < proba_gaussBlur:
             modalities = []
-            for i in range(N_CHANNELS):
+            for i in range(2):
                 if tf.random.uniform(shape=(), minval=0, maxval=1, dtype='float32') < proba_gaussBlur_modality:
                     sigma = tf.random.uniform(shape=(), minval=sigma_gaussBlur_min, maxval=sigma_gaussBlur_max, dtype='float32')
                     modality = gauss_filter_tensor(mris[:,:,:,i], sigma)
@@ -266,7 +266,7 @@ def augmentation_fns(flip: bool, rotation: bool, scaling: bool, elastic: bool, s
             mris = update_contrast(mris, factor_contrast)
         if lowRes and tf.random.uniform(shape=(), minval=0, maxval=1, dtype='float32') < proba_lowRes:
             modalities = []
-            for i in range(N_CHANNELS):
+            for i in range(2):
                 if tf.random.uniform(shape=(), minval=0, maxval=1, dtype='float32') < proba_lowRes_modality:
                     downsampling_factor = tf.random.uniform(shape=(), minval=factor_lowRes_min, maxval=factor_lowRes_max, dtype='float32')
                     modality = simulate_lowRes_tensor(mris[:,:,:,i], downsampling_factor)
@@ -281,7 +281,7 @@ def augmentation_fns(flip: bool, rotation: bool, scaling: bool, elastic: bool, s
     
     @tf.function(input_signature=(
         tf.TensorSpec(shape=IMAGE_SHAPE+[None], dtype='float32'),
-    ), jit_compile=False)
+    ), jit_compile=not (rotation or scaling or lowRes or elastic))
     def unsupervised_augmentation(mris):
         if flip and tf.random.uniform(shape=(), minval=0, maxval=1, dtype="float32") < 0.5:
             mris = tf.reverse(mris,[0])

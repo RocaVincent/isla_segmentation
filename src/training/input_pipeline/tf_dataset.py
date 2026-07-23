@@ -1,4 +1,5 @@
 import tensorflow as tf
+from collections.abc import Sequence
 
 from .data_augmentation import augmentation_fns
 
@@ -21,7 +22,7 @@ supervised_augmentation, unsupervised_augmentation = augmentation_fns(
 )
 
 def training_dataset_supervised(
-    tfrecord_paths: list[str],
+    tfrecord_paths: Sequence[str],
     batch_size: int,
     cache: bool,
     buffer_size: int,
@@ -46,8 +47,8 @@ def training_dataset_supervised(
     
 
 def training_dataset_meanTeacher(
-    tfrecord_paths_source: list[str],
-    tfrecord_paths_target: list[str],
+    tfrecord_paths_source: Sequence[str],
+    tfrecord_paths_target: Sequence[str],
     batch_size_source: int,
     batch_size_target: int,
     cache: bool,

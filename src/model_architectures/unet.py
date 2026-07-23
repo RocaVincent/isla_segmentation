@@ -92,7 +92,7 @@ def UNet(
     
     if unet_type == UNetType.ResUNet:
         x = ResUNet_block(first=True, n_filters=n_filters[0], kernel_size=kernel_sizes[0], strides1=downUp_spacings[0], dropout=dropouts[0])(inputs)
-        skips = [x]
+        skips = [SE_block(reduction_ratio=8)(x)]
         Conv_block = partial(ResUNet_block, first=False)
         idx_conv = 1
     else:

@@ -3,7 +3,7 @@ import os, json
 
 def main():
     parser = argparse.ArgumentParser(
-        "Runs training of a segmentation model."
+        "Runs fully-supervised training of a segmentation model (ISLA sub-model)."
     )
     parser.add_argument(
         '--image-shape', type=str, required=True,
@@ -11,14 +11,7 @@ def main():
     )
     parser.add_argument(
         '--tfrecord-paths', type=str, required=True,
-        help="Path of a file containing comma-separated GZIP-compressed tfrecord paths for training. Each tfrecord entry has two keys : 'mri', 'lesion'."
-    )
-    parser.add_argument(
-        '--batch-size', type=int, required=True
-    )
-    parser.add_argument(
-        '--steps-per-epoch', type=int, required=True,
-        help="User has to compute the integer division of the number of entries in --tfrecords-paths divided by --batch-size."
+        help="Path of a file containing comma-separated GZIP-compressed tfrecord paths for training. Each tfrecord entry has two keys : 'mris', 'lesion'."
     )
     parser.add_argument(
         '--unet-type', type=str, required=True,
@@ -32,16 +25,24 @@ def main():
         '--output-dir', type=str, required=True
     )
     parser.add_argument(
+        '--n-samples', type=int, required=True,
+        help="User has to provide the number of entries in --tfrecords-path."
+    )
+    parser.add_argument(
         '--n-epochs', type=int, default=200,
         help="(default : %(default)s)"
     )
     parser.add_argument(
+        '--batch-size', type=int, default=4,
+        help="(default : %(default)s)"
+    )
+    parser.add_argument(
         '--verbose', type=int, default=2,
-        help="0: no log ; 1: log at each epoch; 2: log at each step %(default)s"
+        help="0: no log ; 1: log at each epoch; 2: log at each step (default = %(default)s)"
     )
     parser.add_argument(
         '--no-std-output', action='store_true',
-        help="Prevents log on standard output."
+        help="Prevents logs on standard output (activated by default)."
     )
     args = parser.parse_args()
 
@@ -53,16 +54,16 @@ def main():
     except ValueError:
       parser.error(f"--image-shape must be comma-separated integers, got: {args.image_shape!r}")
     os.environ['IMAGE_SHAPE'] = json.dumps(shape)
-    
-    from .run_training import train_supervised
-    train_supervised(
+
+    from .run_training_fullySupervised import train_fullySupervised
+    train_fullySupervised(
         tfrecord_paths=tfrecord_paths,
         unet_type=args.unet_type,
         loss_str=args.loss,
         output_dir=args.output_dir,
         n_epochs=args.n_epochs,
         batch_size=args.batch_size,
-        steps_per_epoch=args.steps_per_epoch,
+        steps_per_epoch = args.n_samples // args.batch_size,
         verbose=args.verbose,
         std_output = not args.no_std_output
     )
