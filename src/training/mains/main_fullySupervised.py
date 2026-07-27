@@ -55,7 +55,7 @@ def main():
       parser.error(f"--image-shape must be comma-separated integers, got: {args.image_shape!r}")
     os.environ['IMAGE_SHAPE'] = json.dumps(shape)
 
-    from .run_training_fullySupervised import train_fullySupervised
+    from ..run_training.run_training_fullySupervised import train_fullySupervised
     train_fullySupervised(
         tfrecord_paths=tfrecord_paths,
         unet_type=args.unet_type,

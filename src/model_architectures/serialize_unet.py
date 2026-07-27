@@ -8,10 +8,10 @@ def save_model_config(
     config_file: str
 ) -> None:
     d = {
-        'input_shape':model.input_shape.value,
-        'unet_type':model.unet_type.value,
-        'deep_supervision':model.deep_supervision,
-        'dropout_deepLayers':model.dropout_deepLayers
+        'input_shape':model.config['input_shape'].value,
+        'unet_type':model.config['unet_type'].value,
+        'deep_supervision':model.config['deep_supervision'],
+        'dropout_deepLayers':model.config['dropout_deepLayers']
     }
     with open(config_file, 'w') as f: json.dump(d, f, indent=4)
     

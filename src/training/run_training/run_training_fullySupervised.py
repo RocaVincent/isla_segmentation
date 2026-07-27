@@ -7,11 +7,6 @@ import numpy as np
 import logging
 from datetime import timedelta
 
-from ..model_architectures.unet import UNet, InputShape, UNetType
-from ..model_architectures.serialize_unet import save_model_config
-from .input_pipeline.tf_dataset import training_dataset_supervised
-from .loss_functions import sum_dice_bce, asym_unified_focal_loss
-from .trainers.fullySupervisedTrainer import FullySupervisedTrainer
 
 IMAGE_SHAPE = json.loads(os.environ['IMAGE_SHAPE'])
 
@@ -30,6 +25,17 @@ def train_fullySupervised(
     if os.path.isdir(output_dir): print(f"WARNING: The specified output {output_dir} directory already exists.")
     else: os.mkdir(output_dir)
     tf.keras.mixed_precision.set_global_policy('mixed_float16')
+
+    gpus = tf.config.list_physical_devices('GPU')
+    if len(gpus)==0: raise Exception("No GPUs detected.")
+    tf.config.experimental.set_memory_growth(gpus[0], True)
+    tf.keras.mixed_precision.set_global_policy('mixed_float16')
+
+    from ...model_architectures.unet import UNet, InputShape, UNetType
+    from ...model_architectures.serialize_unet import save_model_config
+    from ..input_pipeline.tf_dataset import training_dataset_supervised
+    from ..loss_functions import sum_dice_bce, asym_unified_focal_loss
+    from ..trainers.fullySupervisedTrainer import FullySupervisedTrainer
 
     ### DATASET INITIALIZATION ###
     dataset = training_dataset_supervised(

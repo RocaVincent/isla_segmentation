@@ -2,7 +2,6 @@ import tensorflow as tf
 import nibabel as nib
 from scipy import ndimage
 import numpy as np
-import ants
 from collections.abc import Sequence
 
 from ..model_architectures.unet import InputShape, InputResol
@@ -58,6 +57,7 @@ class MultiPredictor_flipping:
         print('Reorientation and resampling...')
         # ORIENTATION
         orig_ornt = nib.orientations.io_orientation(ref.affine)
+        input_resol = np.array(ref.header.get_zooms())
         to_reorient = (orig_ornt!=TARGET_ORNT).any()
         if to_reorient:
             fwd_reorient = nib.orientations.ornt_transform(orig_ornt,TARGET_ORNT)
@@ -65,9 +65,10 @@ class MultiPredictor_flipping:
             dwi = nib.orientations.apply_orientation(dwi,fwd_reorient)
             adc = nib.orientations.apply_orientation(adc,fwd_reorient)
             brain_mask = nib.orientations.apply_orientation(brain_mask,fwd_reorient)
+            axis_order = fwd_reorient[:, 0].astype(int)
+            input_resol = input_resol[axis_order]
         
         # RESAMPLING, PADCROP, NORMALIZATION
-        input_resol = np.array(ref.header.get_zooms())
         if self.shape1:
             factors = input_resol / InputResol.RESOL1.value
             dwi1,adc1,padcrops1 = resample_padcrop_normalize(dwi,adc,brain_mask,
