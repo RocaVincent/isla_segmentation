@@ -76,7 +76,7 @@ def train_meanTeacher(
         case 'UFL':
             loss_supervised_fn = asym_unified_focal_loss()
             init_lr = 0.005
-            consistency_weight_end = 2
+            consistency_weight_end = 1
         case _: raise Exception(f"Unknown loss {loss_supervised_str}")
     loss_consistency_fn = mse
 

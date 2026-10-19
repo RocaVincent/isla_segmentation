@@ -30,12 +30,13 @@ def create_tfrecords(
                 ref = nib.load(dwi_path)
                 dwi,brain_mask = synthstrip.skullstrip(ref)
                 adc = nib.load(adc_path).get_fdata()
-                adc = adc*brain_mask.get_fdata()
+                adc = adc*brain_mask
                 lesion = nib.load(lesion_path).get_fdata()
     
                 #N4ITK
-                dwi = n4BiasFieldCorrection(dwi, brain_mask)
-                brain_mask = brain_mask.get_fdata()
+                dwi = nib.Nifti1Image(dwi, affine=ref.affine, header=ref.header)
+                brain_mask_nifti = nib.Nifti1Image(brain_mask, affine=ref.affine, header=ref.header)
+                dwi = n4BiasFieldCorrection(dwi, brain_mask_nifti)
     
                 # ORIENTATION
                 orig_ornt = nib.orientations.io_orientation(ref.affine)

@@ -28,13 +28,5 @@ def segment_and_save_raw(
     models = [model_from_config(cfg) for cfg in config_paths]
     for m,w in zip(models,weights_paths): m.load_weights(w)
     predictor = MultiPredictor_flipping(models)
-    
-    for i,(dwi_path, adc_path, output_path) in enumerate(zip(dwi_paths,adc_paths,output_paths), start=1):
-        print(f"Running inference {i}/{len(dwi_paths)}")
-        predictor.predict(
-            dwi_path=dwi_path,
-            adc_path=adc_path,
-            output_path=output_path
-        )
-        print()
+    predictor.predict_all(list(zip(dwi_paths,adc_paths,output_paths)))
         

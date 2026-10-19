@@ -4,6 +4,7 @@ import numpy as np
 import surfa as sf
 import nibabel as nib
 import scipy.ndimage
+from os.path import dirname
 
 
 class ConvBlock(nn.Module):
@@ -149,7 +150,7 @@ class CustomSynthstrip:
             self.model = StripModel()
             self.model.to(self.device)
             self.model.eval()   
-        modelfile = '/home/vincent/Downloads/synthstrip.1.pt'
+        modelfile = f"{dirname(dirname(dirname(__file__)))}/model_weights/synthstrip.1.pt"
         checkpoint = torch.load(modelfile, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.border = 1
@@ -157,9 +158,9 @@ class CustomSynthstrip:
     def skullstrip(
         self,
         mri:nib.nifti1.Nifti1Image
-    ) -> tuple[nib.nifti1.Nifti1Image,nib.nifti1.Nifti1Image]:
+    ) -> tuple[np.ndarray,np.ndarray]:
         geom = sf.ImageGeometry(shape=mri.shape[:3], vox2world=mri.affine)
-        image = sf.Volume(mri.get_fdata(), geometry=geom)
+        image = sf.Volume(mri.get_fdata(dtype=np.float32), geometry=geom)
         
         # conform image and fit to shape with factors of 64
         conformed = image.conform(voxsize=1.0, dtype='float32', method='nearest', orientation='LIA').crop_to_bbox()
@@ -184,8 +185,4 @@ class CustomSynthstrip:
         mask = (components == (np.argmax(bincount) + 1))
         mask = scipy.ndimage.binary_fill_holes(mask)
         image[~mask] = 0
-        
-        return (
-            nib.Nifti1Image(image.data, affine=mri.affine, header=mri.header), 
-            nib.Nifti1Image(mask.astype('int'), affine=mri.affine, header=mri.header)
-        )
+        return image.data, mask

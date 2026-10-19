@@ -1,7 +1,7 @@
 import argparse
 import pandas as pd
 
-from .run_inference import segment_and_save_raw
+from .run_inference2 import segment_and_save_raw
 
 
 def main():
@@ -10,7 +10,7 @@ def main():
     )
     parser.add_argument(
         '--cases-csv', type=str, required=True,
-        help="CSV listing the raw MR images. Expected columns are 'dwi','adc','output'."
+        help="CSV listing the raw MR images and the output paths. Expected columns are 'dwi','adc','output'."
     )
     parser.add_argument(
         '--configs-weights-csv' , type=str, required=True,
