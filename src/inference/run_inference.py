@@ -11,7 +11,8 @@ def segment_and_save_raw(
     output_paths: Sequence[str],
     config_paths: Sequence[str],
     weights_paths: Sequence[str],
-    use_gpu: bool
+    use_gpu: bool,
+    n_prefetch: int
 ):
     if use_gpu:
         gpus = tf.config.list_physical_devices('GPU')
@@ -27,6 +28,6 @@ def segment_and_save_raw(
     print('Model instantiation and weight loading...')
     models = [model_from_config(cfg) for cfg in config_paths]
     for m,w in zip(models,weights_paths): m.load_weights(w)
-    predictor = MultiPredictor_flipping(models)
+    predictor = MultiPredictor_flipping(models, n_prefetch=n_prefetch)
     predictor.predict_all(list(zip(dwi_paths,adc_paths,output_paths)))
         

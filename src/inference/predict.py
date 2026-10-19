@@ -15,6 +15,7 @@ TARGET_ORNT = nib.orientations.axcodes2ornt(('L', 'A', 'S'))
 
 
 class SinglePredictor_flipping:
+    
     def __init__(self, model: tf.keras.Model):
         self.model = model
         self.input_shape = model.config['input_shape']
@@ -37,12 +38,13 @@ class SinglePredictor_flipping:
 
 class MultiPredictor_flipping:
     
-    def __init__(self, models: Sequence[tf.keras.Model]):
+    def __init__(self, models: Sequence[tf.keras.Model], n_prefetch):
         self.predictors = [SinglePredictor_flipping(m) for m in models]
         self.groups = {}   # shape key -> (resol, [predictors])
         for p in self.predictors:
             self.groups.setdefault(p.input_shape, []).append(p)
         self.synthstrip = CustomSynthstrip()
+        self.n_prefetch
 
     # ---------- stage 1: CPU preprocessing (runs in a worker thread) ----------
     def preprocess(self, dwi_path, adc_path):
@@ -110,18 +112,18 @@ class MultiPredictor_flipping:
         self.save(ctx, self.infer(ctx), output_path)
 
     # ---------- whole dataset, pipelined ----------
-    def predict_all(self, cases, n_prefetch=4):
+    def predict_all(self, cases):
         """cases: list of (dwi_path, adc_path, output_path)"""
         n = len(cases)
         t0 = time.perf_counter()
-        with ThreadPoolExecutor(n_prefetch) as pre, ThreadPoolExecutor(1) as post:
-            pre_futs = [pre.submit(self.preprocess, d, a) for d, a, _ in cases[:n_prefetch]]
+        with ThreadPoolExecutor(self.n_prefetch) as pre, ThreadPoolExecutor(1) as post:
+            pre_futs = [pre.submit(self.preprocess, d, a) for d, a, _ in cases[:self.n_prefetch]]
             save_futs = []
             for i, (_, _, out) in enumerate(cases):
                 ctx = pre_futs[i].result()
                 pre_futs[i] = None
-                if i + n_prefetch < n:
-                    d, a, _ = cases[i + n_prefetch]
+                if i + self.n_prefetch < n:
+                    d, a, _ = cases[i + self.n_prefetch]
                     pre_futs.append(pre.submit(self.preprocess, d, a))
                 pred = self.infer(ctx)
                 save_futs.append(post.submit(self.save, ctx, pred, out))

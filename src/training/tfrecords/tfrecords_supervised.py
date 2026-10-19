@@ -16,7 +16,7 @@ def create_tfrecords(
     target_shape: InputShape,
     dest_dir: str,
     nfiles: int,
-    compression: bool
+    compression: bool = True
 ) -> None:
     synthstrip = CustomSynthstrip()
     TARGET_ORNT = nib.orientations.axcodes2ornt(('L','A','S'))

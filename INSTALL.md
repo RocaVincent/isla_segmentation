@@ -1,4 +1,32 @@
+# Cloning repository
+
+Clone the repository and navigate to its root directory:
+
+```shell
+git clone https://github.com/RocaVincent/isla_segmentation.git
+cd isla_segmentation
+```
+
+
+# Model weights and configuration file
+
+Download and extract the model configurations and pretrained weights:
+
+```shell
+wget TODO
+unzip isla_configs_weights.zip
+```
+
+Download the Synthstrip weights:
+
+```shell
+wget https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/requirements/synthstrip.1.pt
+```
+
+
+
 # Anaconda environment
+
 
 ## Environment creation
 

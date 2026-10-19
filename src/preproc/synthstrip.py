@@ -150,7 +150,7 @@ class CustomSynthstrip:
             self.model = StripModel()
             self.model.to(self.device)
             self.model.eval()   
-        modelfile = f"{dirname(dirname(dirname(__file__)))}/model_weights/synthstrip.1.pt"
+        modelfile = f"{dirname(dirname(dirname(__file__)))}/synthstrip.1.pt"
         checkpoint = torch.load(modelfile, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.border = 1
