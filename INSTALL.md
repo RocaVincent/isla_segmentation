@@ -13,7 +13,7 @@ cd isla_segmentation
 Download and extract the model configurations and pretrained weights:
 
 ```shell
-wget TODO
+wget https://github.com/RocaVincent/isla_segmentation/releases/download/v1.0.0/isla_configs_weights.zip
 unzip isla_configs_weights.zip
 ```
 

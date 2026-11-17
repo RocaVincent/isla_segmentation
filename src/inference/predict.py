@@ -44,7 +44,7 @@ class MultiPredictor_flipping:
         for p in self.predictors:
             self.groups.setdefault(p.input_shape, []).append(p)
         self.synthstrip = CustomSynthstrip()
-        self.n_prefetch
+        self.n_prefetch = n_prefetch
 
     # ---------- stage 1: CPU preprocessing (runs in a worker thread) ----------
     def preprocess(self, dwi_path, adc_path):

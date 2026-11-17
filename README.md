@@ -1,6 +1,6 @@
 # Acute ischemic stroke segmentation with ISLA
 
-This repository provides the code and model weights to use the ISLA model for segmentation of ischemic stroke lesions. ISLA has been trained to segment acute ischemic stroke lesion from trace diffusion-weighted images and apparent diffusion coefficient maps. Details of the method and its validation experiments are provided in our [paper](arxiv link).
+This repository provides the code and model weights to use the ISLA model for segmentation of ischemic stroke lesions. ISLA has been trained to segment acute ischemic stroke lesion from trace diffusion-weighted images and apparent diffusion coefficient maps. Details of the method and its validation experiments are provided in [our paper](https://doi.org/10.48550/arXiv.2601.08732).
 
 
 ## Installation instructions
@@ -15,7 +15,7 @@ Run the following command to perform inference with ISLA:
 ```shell
 python -m src.inference.main \
     --cases-csv my_inputs.csv \
-    --configs-weights-csv isla_config_weights/configs_weights.csv
+    --configs-weights-csv isla_configs_weights/configs_weights.csv
 ```
 
 Replace *my_inputs.csv* with the path to a CSV file containing three columns specifying the input and output filepaths: *dwi*, *adc* and *output*.
